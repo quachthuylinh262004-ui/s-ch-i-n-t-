@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>E-Reader Ultimate Pro | Chương 1</title>
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --primary-teal: #1abc9c;
+            --font-size: 19px;
+            --line-height: 1.8;
+            --font-family: 'Arial', sans-serif;
+            --toolbar-bg: #1e293b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-page);
+            font-family: var(--font-family);
+            color: var(--text-main);
+            transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
+            user-select: none;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* LOGO HOME BUTTON */
+        .home-logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            background: var(--bg-card);
+            padding: 8px 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(26, 188, 156, 0.2);
+        }
+
+        .home-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(26, 188, 156, 0.2);
+            background: var(--primary-teal);
+        }
+
+        .home-logo svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-teal);
+            transition: fill 0.3s;
+        }
+
+        .home-logo span {
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--primary-teal);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .home-logo:hover svg { fill: white; }
+        .home-logo:hover span { color: white; }
+
+        /* CHAPTER LIST BUTTON (RIGHT SIDE) */
+        .chapter-menu-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            padding: 8px 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(26, 188, 156, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chapter-menu-btn:hover {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .chapter-menu-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: var(--primary-teal);
+            stroke-width: 2;
+            transition: stroke 0.3s;
+        }
+
+        .chapter-menu-btn:hover svg { stroke: white; }
+
+        .chapter-menu-btn span {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--primary-teal);
+            transition: color 0.3s;
+        }
+
+        .chapter-menu-btn:hover span { color: white; }
+
+        /* DROPDOWN MENU */
+        #chapterDropdown {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            width: 220px;
+            background: var(--toolbar-bg);
+            border-radius: 15px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            z-index: 1002;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .chapter-link {
+            color: #cbd5e1;
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .chapter-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding-left: 20px;
+        }
+
+        .chapter-link.active {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .selectable {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto 150px;
+            background: var(--bg-card);
+            padding: 50px 60px;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        #textContent {
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+            text-align: justify;
+        }
+
+        h1 { text-align: center; color: var(--primary-teal); margin-bottom: 40px; margin-top: 20px; }
+
+        .hl-marked { 
+            background: rgba(250, 204, 21, 0.4); 
+            border-bottom: 2px solid #facc15;
+            cursor: pointer;
+        }
+
+        .smart-ui { position: fixed; transition: all 0.4s ease; z-index: 999; }
+        .ui-hidden { transform: translateY(120px); opacity: 0; pointer-events: none; }
+        .logo-hidden { transform: translateX(-120px); opacity: 0; }
+        .nav-hidden-right { transform: translateX(120px); opacity: 0; }
+
+        .circle-btn { 
+            bottom: 30px; width: 50px; height: 50px; border-radius: 50%; 
+            background: var(--primary-teal); color: white; border: none; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; 
+        }
+        #btnDown { left: 20px; } 
+        #btnUp { right: 20px; }
+
+        .toolbar {
+            bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--toolbar-bg); padding: 8px 16px;
+            border-radius: 40px; display: flex; gap: 6px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            align-items: center;
+        }
+
+        .tool-btn { 
+            background: none; border: none; color: #94a3b8; 
+            cursor: pointer; padding: 10px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tool-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+        .tool-btn:hover, .tool-btn.active { color: white; background: rgba(255,255,255,0.1); }
+
+        #musicMenu {
+            position: absolute; bottom: 70px; background: var(--toolbar-bg);
+            border-radius: 12px; padding: 8px; display: none; flex-direction: column;
+            width: 160px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .music-item { color: #cbd5e1; padding: 8px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .music-item:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        .modal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center; z-index: 1000; 
+        }
+        .modal-content { 
+            background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; color: #333;
+            max-height: 85vh; overflow-y: auto;
+        }
+        .setting-section { margin-bottom: 20px; }
+        .setting-label { display: block; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+        .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 13px; background: #fff; transition: 0.2s; }
+        .opt-btn.active { background: var(--primary-teal); color: white; border-color: var(--primary-teal); }
+
+        #hlPanel {
+            position: fixed; top: 20px; right: 20px; width: 280px; max-height: 350px;
+            background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none; flex-direction: column; z-index: 1100; border: 1px solid #eee;
+        }
+        .hl-header { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-weight: bold; }
+        .hl-list { padding: 10px; overflow-y: auto; flex: 1; font-size: 12px; }
+        .hl-item { padding: 8px; background: #f8fafc; margin-bottom: 6px; border-radius: 6px; cursor: pointer; border-left: 3px solid var(--primary-teal); }
+
+        #securityAlert {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            display: none; align-items: center; justify-content: center; z-index: 10000;
+        }
+        .alert-box { background: white; padding: 25px; border-radius: 12px; text-align: center; }
+
+        .navigation-container {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px dashed #cbd5e1;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 28px;
+            background: var(--primary-teal);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);
+            cursor: pointer;
+            border: none;
+        }
+
+        .nav-btn.prev {
+            background: var(--bg-page);
+            color: var(--primary-teal);
+            border: 2px solid var(--primary-teal);
+            box-shadow: none;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(26, 188, 156, 0.4);
+        }
+
+        .nav-btn.prev:hover {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .waves-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .wave-svg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            animation: move-wave 15s linear infinite;
+            opacity: 0.3;
+        }
+
+        .wave-svg-2 {
+            animation: move-wave 10s linear infinite reverse;
+            opacity: 0.15;
+            bottom: 5px;
+        }
+
+        @keyframes move-wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 30px 20px; margin: 0; border-radius: 0; }
+            .home-logo { top: 10px; left: 10px; padding: 6px 12px; }
+            .home-logo span { display: none; }
+            .chapter-menu-btn { top: 10px; right: 10px; padding: 6px 12px; }
+            .chapter-menu-btn span { display: none; }
+            #chapterDropdown { top: 55px; width: 180px; }
+            .nav-btn { padding: 12px 20px; font-size: 14px; width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body oncontextmenu="return showAlert(event)">
+
+<div id="securityAlert"><div class="alert-box"><h3>Bảo vệ nội dung</h3><p>Thao tác bị chặn!</p></div></div>
+
+<!-- LOGO HOME -->
+<a href="index.html" class="home-logo" id="homeLogo">
+    <svg viewBox="0 0 24 24">
+        <path d="M12 3L1 9l11 6l9-4.91V17h2V9L12 3z"/>
+        <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+    </svg>
+    <span>Bookzone</span>
+</a>
+
+<!-- NÚT DANH SÁCH CHƯƠNG (PHẢI MÀN HÌNH) -->
+<div class="chapter-menu-btn" id="chapterBtn">
+    <svg viewBox="0 0 24 24">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+    <span>Danh sách chương</span>
+</div>
+
+<!-- MENU THẢ XUỐNG -->
+<div id="chapterDropdown">
+    <a href="Chương 1.html" class="chapter-link active">Chương 1: Xuyên Không Mười Năm Sau</a>
+<a href="Chương 2.html" class="chapter-link">Chương 2: Kẻ Lạ Mặt Trong Chính Ngôi Nhà Mình</a>
+<a href="Chương 3.html" class="chapter-link">Chương 3: Nơi Không Có Chỗ Cho Dư Thanh Vũ</a>
+<a href="Chương 4.html" class="chapter-link">Chương 4: Tìm Lại Chính Mình</a>
+<a href="Chương 5.html" class="chapter-link">Chương 5: Chuỗi Hạt Phật Và Đóa Sen</a>
+<a href="Chương 6.html" class="chapter-link">Chương 6. Ngọn Lửa Dưới Lớp Băng</a>
+<a href="Chương 7.html" class="chapter-link">Chương 7: Bước Chân Về Nơi Thanh Tịnh</a>
+<a href="Chương 8.html" class="chapter-link">Chương 8: Con Dao Trong Tim</a>
+<a href="Chương 9.html" class="chapter-link">Chương 9: Ngoại Lệ Duy Nhất</a>
+<a href="Chương 10.html" class="chapter-link">Chương 10: Cuộc Chiến Trên Du Thuyền</a>
+<a href="Chương 11.html" class="chapter-link">Chương 11: Ngày Hè Rực Rỡ</a>
+<a href="Chương 12.html" class="chapter-link">Chương 12: Cuộc Gặp Tại Biệt Thự</a>
+<a href="Chương 13.html" class="chapter-link">Chương 13: Thách Thức Tạ Hoài Chu</a>
+<a href="Chương 14.html" class="chapter-link">Chương 14: Không Thể Chạy Thoát</a>
+<a href="Chương 15.html" class="chapter-link">Chương 15: Đêm Trước Chuyến Bay</a>
+<a href="Chương 16.html" class="chapter-link">Chương 16. Trách Nhiệm Hay Chấp Niệm</a>
+<a href="Chương 17.html" class="chapter-link">Chương 17. Người Gác Cửa Của Em</a>
+<a href="Chương 18.html" class="chapter-link">Chương 18. Trái Tim Giữa Hai Thế Giới</a>
+<a href="Chương 19.html" class="chapter-link">Chương 19. Vị Hôn Phu</a>
+<a href="Chương 20.html" class="chapter-link">Chương 20. Ánh Đèn Đêm</a>
+<a href="Chương 21.html" class="chapter-link">Chương 21: Giữa Men Say Và Sự Thật</a>
+<a href="Chương 22.html" class="chapter-link">Chương 22: Khoảng Cách Không Cần Nói Thành Lời</a>
+<a href="Chương 23.html" class="chapter-link">Chương 23: Trước Khi Tôi Biến Mất</a>
+<a href="Chương 24.html" class="chapter-link">Chương 24: Lần Đầu Là Chính Mình</a>
+<a href="Chương 25.html" class="chapter-link">Chương 25: Một Bước Rẽ</a>
+<a href="Chương 26.html" class="chapter-link">Chương 26: Hẹn Hò</a>
+<a href="Chương 27.html" class="chapter-link">Chương 27: Một Ngày Không Theo Kịch Bản</a>
+<a href="Chương 28.html" class="chapter-link">Chương 28: Bước Ra Khỏi Giới Hạn</a>
+<a href="Chương 29.html" class="chapter-link">Chương 29: Khoảnh Khắc Không Thể Buông</a>
+<a href="Chương 30.html" class="chapter-link">Chương 30: Tôi Không Tuyển Bạn Trai</a>
+<a href="Chương 31.html" class="chapter-link">Chương 31: Câu Hỏi Không Có Hồi Đáp</a>
+<a href="Chương 32.html" class="chapter-link">Chương 32: Một Buổi Tối Ở London</a>
+<a href="Chương 33.html" class="chapter-link">Chương 33: London, Anh Xuất Hiện</a>
+<a href="Chương 34.html" class="chapter-link">Chương 34: Cuộc Hẹn Không Tên</a>
+<a href="Chương 35.html" class="chapter-link">Chương 35: Anh Rất Nhớ Em</a>
+<a href="Chương 36.html" class="chapter-link">Chương 36: Không Có Ai Khác</a>
+<a href="Chương 37.html" class="chapter-link">Chương 37: Nụ Cười Không Thể Giấu</a>
+<a href="Chương 38.html" class="chapter-link">Chương 38: Cuộc Gọi Đang Kết Nối</a>
+<a href="Chương 39.html" class="chapter-link">Chương 39: Tuyên Bố Chủ Quyền</a>
+<a href="Chương 40.html" class="chapter-link">Chương 40: Chấp Niệm</a>
+<a href="Chương 41.html" class="chapter-link">Chương 41: Cuộc Gọi Không Đúng Lúc</a>
+<a href="Chương 42.html" class="chapter-link">Chương 42: Người Ở Bên Cạnh</a>
+<a href="Chương 43.html" class="chapter-link">Chương 43: Cuối Cùng Cũng Là Anh</a> 
+</div>
+
+<div class="waves-container">
+    <svg class="wave-svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,60 C150,110 350,10 500,60 C650,110 850,10 1000,60 C1150,110 1350,10 1500,60 L1500,120 L0,120 Z" fill="var(--primary-teal)"></path>
+    </svg>
+    <svg class="wave-svg wave-svg-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,60 C150,110 350,10 500,60 C650,110 850,10 1000,60 C1150,110 1350,10 1500,60 L1500,120 L0,120 Z" fill="var(--primary-teal)"></path>
+    </svg>
+</div>
+
+<button class="smart-ui circle-btn" id="btnDown"><svg viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5" stroke="currentColor" fill="none" stroke-width="2"/></svg></button>
+<button class="smart-ui circle-btn" id="btnUp"><svg viewBox="0 0 24 24"><path d="M17 11l-5-5-5 5M17 18l-5-5-5 5" stroke="currentColor" fill="none" stroke-width="2"/></svg></button>
+
+<div class="smart-ui toolbar" id="mainToolbar">
+    <button class="tool-btn" id="btnOpenSet" title="Cài đặt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <button class="tool-btn" id="btnFullscreen" title="Toàn màn hình"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+    <button class="tool-btn" id="btnHlAction" title="Highlight"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
+    <button class="tool-btn" id="btnTTS" title="Đọc văn bản"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2"/></svg></button>
+    <div style="position:relative; display:flex">
+        <button class="tool-btn" id="btnMusic" title="Nhạc nền"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
+        <div id="musicMenu">
+            <div class="music-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">🎹 Piano Melody</div>
+            <div class="music-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">🍃 Nature Soft</div>
+            <div class="music-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3">☕ Jazz Cafe</div>
+            <div class="music-item" style="border-top:1px solid #444; color:#ff4d4d; margin-top:5px" data-src="stop">⏹ Dừng nhạc</div>
+        </div>
+    </div>
+    <button class="tool-btn" id="btnAuto" title="Cuộn tự động"><svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg></button>
+    <button class="tool-btn" id="btnShowMarks" title="Danh sách highlight"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+</div>
+
+<audio id="audioPlayer" loop></audio>
+
+<!-- Modal Cài đặt -->
+<div class="modal" id="modalSettings">
+    <div class="modal-content">
+        <h2 style="margin-top:0; text-align:center; color:var(--primary-teal)">Cài Đặt Đọc</h2>
+        <div class="setting-section">
+            <span class="setting-label">Màu nền (Theme)</span>
+            <div class="options-grid">
+                <button class="opt-btn active" data-type="theme" data-bg="#f8fafc" data-card="#ffffff">Sáng</button>
+                <button class="opt-btn" data-type="theme" data-bg="#f1e7d0" data-card="#fdf6e3">Cổ điển</button>
+                <button class="opt-btn" data-type="theme" data-bg="#0f172a" data-card="#1e293b">Tối</button>
+            </div>
+        </div>
+        <div class="setting-section">
+            <span class="setting-label">Màu chữ</span>
+            <div class="options-grid">
+                <button class="opt-btn active" data-type="color" data-val="#1e293b">Mặc định</button>
+                <button class="opt-btn" data-type="color" data-val="#000000">Đen</button>
+                <button class="opt-btn" data-type="color" data-val="#5d4037">Nâu đậm</button>
+                <button class="opt-btn" data-type="color" data-val="#f1f5f9">Trắng</button>
+            </div>
+        </div>
+        <div class="setting-section">
+            <span class="setting-label">Cỡ chữ</span>
+            <div class="options-grid">
+                <button class="opt-btn" data-type="size" data-val="16px">Nhỏ</button>
+                <button class="opt-btn active" data-type="size" data-val="19px">Vừa</button>
+                <button class="opt-btn" data-type="size" data-val="24px">Lớn</button>
+            </div>
+        </div>
+        <div class="setting-section">
+            <span class="setting-label">Phông chữ</span>
+            <div class="options-grid">
+                <button class="opt-btn active" data-type="font" data-val="'Arial', sans-serif">Arial</button>
+                <button class="opt-btn" data-type="font" data-val="'Times New Roman', serif">Times</button>
+                <button class="opt-btn" data-type="font" data-val="'Courier New', monospace">Courier</button>
+            </div>
+        </div>
+        <div class="setting-section">
+            <span class="setting-label">Dãn dòng</span>
+            <div class="options-grid">
+                <button class="opt-btn" data-type="line" data-val="1.4">Hẹp</button>
+                <button class="opt-btn active" data-type="line" data-val="1.8">Vừa</button>
+                <button class="opt-btn" data-type="line" data-val="2.2">Rộng</button>
+            </div>
+        </div>
+        <button id="btnCloseSet" style="width:100%; padding:14px; background:var(--primary-teal); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer">Hoàn tất</button>
+    </div>
+</div>
+
+<div id="hlPanel">
+    <div class="hl-header"><span>Vùng Highlight</span><span id="closeHl" style="cursor:pointer">✕</span></div>
+    <div class="hl-list" id="hlItems"></div>
+</div>  
+
+<div class="container selectable"> 
+    <h1 id="chapter-title">Chương 6. Ngọn Lửa Dưới Lớp Băng</h1>
+
+    <div id="textContent">
+        <p><strong>- Hoang đường! </strong><br>
+        Tạ Hoài Chu bước tới giật lại chuỗi Phật châu từ tay cô, nhấc chân toan rời đi.</p>
+
+        <p>Dư Thanh Vũ lại đột ngột nắm lấy cổ tay anh, mạnh mẽ đẩy anh áp chặt lên cánh cửa phòng thay đồ.</p>
+
+        <p>Không để cho anh bất kỳ cơ hội phản ứng nào, cô kiễng chân, trực tiếp hôn lên môi anh.</p>
+
+        <p>Môi kề môi, bầu không khí trong phòng chầm chậm trở nên ám muội.</p>
+
+        <p>Rất nhanh sau đó, Tạ Hoài Chu cướp lại quyền chủ động.<br>
+        Anh siết lấy vòng eo cô, kéo cô đi trở lại phòng ngủ, đè cô ngã xuống giường.</p>
+
+        <p>Dư Thanh Vũ đôi mắt mông lung mơ màng, bàn tay đưa lên cởi nút áo sơ mi của anh.<br>
+        Nhưng khi vừa chạm vào, cổ tay cô lập tức bị anh giữ chặt, ngăn lại động tác.</p>
+
+        <p>Ngay sau đó, giọng nói lạnh nhạt của anh vang lên bên tai cô:<br>
+        <strong>- Dư Thanh Vũ, đừng giả vờ say nữa. </strong></p>
+
+        <p>Lòng bàn tay anh rõ ràng nóng rực như lửa, vậy mà khắp người cô lại lạnh băng.</p>
+
+        <p>Ý cười nơi khóe môi cô lập tức tan biến, cô cắn răng, nhẫn nhịn cơn xấu hổ bị anh vạch trần, siết chặt nắm tay, giọng khàn đặc:<br>
+        <strong>- Anh ghét tôi đến vậy sao? Vậy tại sao còn tới tìm tôi? </strong></p>
+
+        <p>Tạ Hoài Chu không trả lời.</p>
+
+        <p>Thậm chí anh còn chẳng liếc nhìn cô lấy một lần, liền đứng dậy rời khỏi phòng ngủ.</p>
+
+        <p>Từ tầng dưới truyền lên tiếng đóng cửa tịnh thất, không nặng cũng chẳng nhẹ.</p>
+
+        <p>Dư Thanh Vũ cắn chặt môi, cố ép tầng nước mắt phủ mờ trong mắt quay trở về.</p>
+
+        <p>Đóa sen đỏ yêu mị trên lưng cô là sau khi đua xe về liền tìm người xăm gấp, giờ đây vẫn còn nhức rát âm ỉ.</p>
+
+        <p>Cô cũng chẳng biết bản thân rốt cuộc đang làm gì, chỉ là muốn Tạ Hoài Chu có thể nhìn mình thêm một chút.</p>
+
+        <p>Anh trung thành với đạo lý của anh, cô cố tình làm vấy bẩn điều ấy.</p>
+
+        <p>Dư Thanh Vũ từng cho rằng, nếu Tạ Hoài Chu chịu đến tìm cô, chứng tỏ ít nhiều vẫn còn quan tâm.</p>
+
+        <p>Nhưng bây giờ xem ra, cô thua rồi. Thua đến thảm hại.</p>
+
+        <p><strong>Cùng lúc đó, bên kia, Tạ Hoài Chu cũng tâm loạn như ma.</strong></p>
+
+        <p>Anh ngồi trên bồ đoàn niệm chú thanh tâm, ngón tay thon dài lặp đi lặp lại lần chuỗi Phật châu.</p>
+
+        <p>Nhưng đóa sen đỏ kia lại cứ như mọc rễ trong đầu, thế nào cũng xua không đi được.</p>
+
+        <p>Lại nhớ tới cảnh Phật châu bị Dư Thanh Vũ cầm nghịch trong tay, động tác của Tạ Hoài Chu khựng lại, hạt châu từ lòng bàn tay rơi xuống đất.</p>
+
+        <p>Ánh mắt anh trầm hẳn xuống — đây là lần đầu tiên anh thất thố.</p>
+
+        <p>Một lúc sau, anh nhặt chuỗi Phật châu lên đặt lại trên bàn, cầm lấy một vòng trầm hương khác ngồi xuống tiếp tục.</p>
+
+        <p>Đêm khuya yên tĩnh, hai người, một đêm không ngủ.</p> 
+
+        <p><strong>Sáng hôm sau.</strong><br>
+        Khi Dư Thanh Vũ tỉnh dậy xuống lầu, Tạ Mễ đã đi học.<br>
+        Nhìn thấy Tạ Hoài Chu vẫn đang ngồi ở bàn ăn dùng bữa, bước chân cô khựng lại, không muốn đối mặt với anh.</p>
+
+        <p>Cô đứng ở bậc thang, vừa định quay người trở về phòng.</p>
+
+        <p>But giọng nói thản nhiên kia lại vang lên:<br>
+        <strong>- Không ăn sẽ nguội. </strong></p>
+
+        <p>Anh sao có thể làm như đêm qua chưa từng xảy ra chuyện gì?<br>
+        Dư Thanh Vũ trong lòng mắng thầm, cuối cùng vẫn dằn tức ngồi xuống đối diện anh.</p>
+
+        <p>Dì Tống bưng tới một phần sandwich và sữa.<br>
+        Tạ Hoài Chu vì tu hành nên kiêng rượu thịt, chỉ cần anh ở nhà, trên bàn ăn tuyệt đối không có đồ tanh mặn.</p>
+
+        <p>Dư Thanh Vũ nổi máu phản nghịch, trực tiếp đẩy khay thức ăn ra:<br>
+        <strong>- Dì Tống, làm cho cháu phần bò bít tết đi. </strong></p>
+
+        <p>Lời vừa dứt, Tạ Hoài Chu ngẩng đầu cau mày:<br>
+        <strong>- Sáng sớm ăn bò bít tết? </strong></p>
+
+        <p><strong>- Thế nào? Tôi lấy anh chẳng phải để sống vinh hoa phú quý, cơm áo không lo à? Một phần bò bít tết thôi mà anh cũng xót? </strong></p>
+
+        <p>Cô không khách khí, đem lời anh hôm trước trả lại nguyên vẹn.</p>
+
+        <p>Tạ Hoài Chu mím chặt môi, dường như muốn nói gì đó, nhưng cuối cùng chỉ ném lại một câu:<br>
+        <strong>- Tùy em. </strong><br>
+        Rồi đứng dậy rời đi.</p>
+
+        <p>Khoác xong áo vest, trước khi ra cửa dường như lại nhớ ra điều gì, quay đầu nói với cô:<br>
+        <strong>- Đừng tới quán bar nữa. </strong></p>
+
+        <p>Dư Thanh Vũ vừa định phản bác anh lấy quyền gì mà quản cô.</p>
+
+        <p>Tạ Hoài Chu nói tiếp:<br>
+        <strong>- Tối nay tôi có xã giao, không cần đợi cơm. Muốn ăn gì bảo dì Tống làm cho em. </strong></p>
+
+        <p>Nói xong liền rời khỏi biệt thự.</p>
+
+        <p>Dư Thanh Vũ ngơ ngác tại chỗ, không dám tin Tạ Hoài Chu lại báo cáo hành trình cho cô.<br>
+        Mặt trời mọc đằng Tây rồi sao?</p>
+
+        <p>Cô lắc đầu, cảm giác bản thân nhất định vẫn đang nằm mơ.</p>
+
+        <p>Dì Tống bưng bò bít tết lên, cười bảo:<br>
+        <strong>- Thiếu gia với phu nhân hình như hòa thuận hơn rồi. </strong></p>
+
+        <p>Dư Thanh Vũ không đáp.</p>
+
+        <p>Hòa thuận, phải có tình cảm trước mới gọi là hòa thuận.<br>
+        Nhưng Tạ Hoài Chu đối với cô...</p>
+
+        <p>Ngực cô nhói lên, khóe môi đắng ngắt, chẳng còn chút khẩu vị nào, cô đứng dậy về phòng.</p>
+
+        <p>Không biết từ lúc nào ngủ thiếp đi.</p>
+
+        <p>Lúc tỉnh lại là bị âm nhạc dưới lầu đánh thức.</p>
+
+        <p>Cô nhíu mày đứng dậy, vừa bước ra cầu thang liền thấy Đoạn Tịch Nguyệt đang đỡ một Tạ Hoài Chu say khướt đi vào phòng khách.</p>
+
+        <p>Tạ Hoài Chu không phải cấm rượu sao?</p>
+
+        <p>Dư Thanh Vũ bước xuống, ánh mắt lạnh lùng nhìn Đoạn Tịch Nguyệt:<br>
+        <strong>- Chuyện gì đây? </strong></p>
+
+        <p>Đoạn Tịch Nguyệt đặt anh xuống ghếsô pha, mới quay sang nói với cô:<br>
+        <strong>- Xin lỗi phu nhân, Hoài Chu là vì giúp tôi cản rượu nên… phu nhân đừng trách anh ấy. </strong></p>
+
+        <p>Ngẩng đầu lên, Dư Thanh Vũ lập tức nhìn rõ son môi trên môi Đoạn Tịch Nguyệt đã lem nhem.</p>
+
+        <p>Mà cô ta như bị người chạm trúng điểm yếu, có chút chột dạ lấy tay che lại.</p>
+
+        <p><strong>- Có phu nhân chăm sóc, tôi xin phép về trước. </strong><br>
+        Cô ta khẽ cúi người, nói xong liền rời đi.</p>
+
+        <p>Dư Thanh Vũ nhìn bóng lưng cô ta, bàn tay thả bên người từng chút siết chặt, cả người run nhẹ.</p>
+
+        <p>Nhưng so với tức giận, cô càng cảm thấy bi thương, càng đau đớn hơn.</p>
+
+        <p>Chồng mình vì người phụ nữ khác mà phá giới, cảm giác đó còn nhục nhã hơn bị người ta tát hai cái.</p>
+
+        <p>Tạ Hoài Chu có thể vì cô mà phá vỡ chút nguyên tắc nào không?</p>
+
+        <p>Dư Thanh Vũ tự biết đáp án — Không thể.</p>
+
+        <p>Cô bảo vệ sĩ đưa anh về phòng, còn bản thân ngồi một mình giữa phòng khách trống trải, trước mắt phủ một tầng nước, ánh mắt vô thần.</p>
+
+        <p>Không, không thể. Cô không thể tiếp tục vì Tạ Hoài Chu mà đau lòng nữa.</p>
+
+        <p>Dư Thanh Vũ lau nước mắt nơi khóe, nghĩ ngợi rồi cầm điện thoại gọi đi một cuộc.</p> 
+
+        <p>Tạ Hoài Chu bị âm nhạc ầm ĩ dưới lầu làm tỉnh, cau mày mở mắt.</p>
+
+        <p>Xác định bản thân đang ở nhà, lông mày anh cau chặt thêm mấy phần.</p>
+
+        <p>Anh chống người ngồi dậy bước ra khỏi phòng, từ tầng hai nhìn xuống<br>
+        Chỉ thấy phòng khách biệt thự lúc này chen chúc người, nam nữ các kiểu đang lắc lư điên cuồng theo điệu nhạc.</p>
+
+        <p>Mà chính giữa đám đông, Dư Thanh Vũ đang cầm ly rượu đứng cạnh một cậu trai da ngăm trông như sinh viên.</p>
+
+        <p>Không biết đối phương nói gì, cô cười nghiêng người, tay như vô tình đặt lên cơ bụng rắn chắc của đối phương, từ từ trượt xuống…</p> 
+    </div>
+
+    <div class="navigation-container">
+        <a href="Chương 5.html" class="nav-btn prev">
+            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <span>Chương trước</span>
+        </a>
+        <a href="Chương 7.html" class="nav-btn">
+            <span>Chương tiếp theo</span>
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+</div>
+
+<script>
+    function showAlert(e) {
+        if(e) e.preventDefault();
+        const alert = document.getElementById('securityAlert');
+        alert.style.display = 'flex';
+        setTimeout(() => alert.style.display = 'none', 1500);
+        return false;
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if((e.ctrlKey || e.metaKey) && ['c','x','s','u'].includes(e.key.toLowerCase())) showAlert(e);
+    });
+
+    window.onload = function() {
+        const audio = document.getElementById('audioPlayer');
+        let scrolling = false;
+        let scrollInt;
+        let lastY = 0;
+
+        // Chapter List Logic
+        const chapterBtn = document.getElementById('chapterBtn');
+        const chapterDropdown = document.getElementById('chapterDropdown');
+
+        chapterBtn.onclick = (e) => {
+            e.stopPropagation();
+            chapterDropdown.style.display = (chapterDropdown.style.display === 'flex' ? 'none' : 'flex');
+        };
+
+        document.addEventListener('click', () => {
+            chapterDropdown.style.display = 'none';
+        });
+
+        // Highlight Logic
+        document.getElementById('btnHlAction').onclick = function() {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0 && sel.toString().trim().length > 0) {
+                const range = sel.getRangeAt(0);
+                const mark = document.createElement('span');
+                mark.className = 'hl-marked';
+                mark.ondblclick = function(e) {
+                    e.stopPropagation();
+                    const p = this.parentNode;
+                    while(this.firstChild) p.insertBefore(this.firstChild, this);
+                    p.removeChild(this);
+                    updateHlList();
+                };
+                try {
+                    range.surroundContents(mark);
+                    updateHlList();
+                    sel.removeAllRanges();
+                } catch(e) { console.warn("Lỗi chọn vùng"); }
+            }
+        };
+
+        function updateHlList() {
+            const list = document.getElementById('hlItems');
+            list.innerHTML = "";
+            document.querySelectorAll('.hl-marked').forEach((el, i) => {
+                const d = document.createElement('div');
+                d.className = 'hl-item';
+                d.innerText = `[#${i+1}] ` + el.innerText.substring(0, 30) + "...";
+                d.onclick = () => el.scrollIntoView({behavior:'smooth', block:'center'});
+                list.appendChild(d);
+            });
+        }
+
+        // Fullscreen
+        document.getElementById('btnFullscreen').onclick = function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        };
+
+        // Settings
+        document.getElementById('btnOpenSet').onclick = () => document.getElementById('modalSettings').style.display='flex';
+        document.getElementById('btnCloseSet').onclick = () => document.getElementById('modalSettings').style.display='none';
+        document.querySelectorAll('.opt-btn').forEach(btn => {
+            btn.onclick = function() {
+                const type = this.dataset.type;
+                this.parentElement.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const root = document.documentElement;
+                if(type === 'theme') {
+                    root.style.setProperty('--bg-page', this.dataset.bg);
+                    root.style.setProperty('--bg-card', this.dataset.card);
+                } else if(type === 'color') {
+                    root.style.setProperty('--text-main', this.dataset.val);
+                } else if(type === 'size') {
+                    root.style.setProperty('--font-size', this.dataset.val);
+                } else if(type === 'font') {
+                    root.style.setProperty('--font-family', this.dataset.val);
+                } else if(type === 'line') {
+                    root.style.setProperty('--line-height', this.dataset.val);
+                }
+            };
+        });
+
+        // Music
+        document.getElementById('btnMusic').onclick = (e) => {
+            e.stopPropagation();
+            const m = document.getElementById('musicMenu');
+            m.style.display = (m.style.display === 'flex' ? 'none' : 'flex');
+        };
+        document.querySelectorAll('.music-item').forEach(item => {
+            item.onclick = function() {
+                const src = this.dataset.src;
+                if(src === 'stop') audio.pause();
+                else { audio.src = src; audio.play(); }
+                document.getElementById('musicMenu').style.display = 'none';
+            };
+        });
+
+        // Auto Scroll
+        document.getElementById('btnAuto').onclick = function() {
+            const icon = document.getElementById('playIcon');
+            if(!scrolling) {
+                scrolling = true;
+                scrollInt = setInterval(() => window.scrollBy(0, 1), 40);
+                icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+            } else {
+                scrolling = false;
+                clearInterval(scrollInt);
+                icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+            }
+        };
+
+        // TTS
+        document.getElementById('btnTTS').onclick = function() {
+            if(speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+                this.classList.remove('active');
+            } else {
+                this.classList.add('active');
+                const utter = new SpeechSynthesisUtterance(document.getElementById('textContent').innerText);
+                utter.lang = 'vi-VN';
+                utter.onend = () => this.classList.remove('active');
+                speechSynthesis.speak(utter);
+            }
+        };
+
+        // Scroll Logic for Hiding/Showing UI
+        document.getElementById('btnDown').onclick = () => window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+        document.getElementById('btnUp').onclick = () => window.scrollTo({top: 0, behavior:'smooth'});
+        document.getElementById('btnShowMarks').onclick = () => {
+            const p = document.getElementById('hlPanel');
+            p.style.display = (p.style.display === 'flex' ? 'none' : 'flex');
+        };
+        document.getElementById('closeHl').onclick = () => document.getElementById('hlPanel').style.display='none';
+
+        window.onscroll = () => {
+            const uiElements = document.querySelectorAll('.smart-ui');
+            const logo = document.getElementById('homeLogo');
+            const chapterNav = document.getElementById('chapterBtn');
+            const now = window.pageYOffset;
+            if (now > lastY && now > 100) {
+                uiElements.forEach(u => u.classList.add('ui-hidden'));
+                logo.classList.add('logo-hidden');
+                chapterNav.classList.add('nav-hidden-right');
+                chapterDropdown.style.display = 'none';
+            } else {
+                uiElements.forEach(u => u.classList.remove('ui-hidden'));
+                logo.classList.remove('logo-hidden');
+                chapterNav.classList.remove('nav-hidden-right');
+            }
+            lastY = now;
+        };
+    };
+</script>
+</body>
+</html>  

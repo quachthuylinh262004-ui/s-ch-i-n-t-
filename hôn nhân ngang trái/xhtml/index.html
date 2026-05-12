@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <title>Hôn Nhân Ngang Trái - Đọc Sách</title>
+    <style type="text/css">
+        :root {
+            --primary: #14b8a6;
+            --primary-light: #e0f2f1;
+            --text-dark: #1e293b;
+            --text-gray: #45494a;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --lock-color: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .app-header {
+            background: var(--white);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 120px;
+        }
+
+        /* Book Info */
+        .book-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .cover-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .book-cover {
+            width: 200px;
+            height: 280px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            object-fit: cover;
+            background-color: #ddd;
+        }
+
+        .badge-premium {
+            position: absolute;
+            top: 10px;
+            right: -10px;
+            background: #f59e0b;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+
+        .book-title {
+            font-size: 26px;
+            margin: 10px 0 5px 0;
+            font-weight: 700;
+        }
+
+        .book-meta {
+            color: var(--text-gray);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Action Buttons */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--primary-light); color: var(--primary); }
+
+        /* Summary Section */
+        .summary-box {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .summary-content {
+            font-size: 14px;
+            color: var(--text-gray);
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .summary-content.expanded {
+            display: block; 
+        }
+
+        .btn-toggle {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 700;
+            cursor: pointer;
+            padding: 10px 0 0 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Chapter List */
+        .chapter-list {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+        }
+
+        .chapter-item {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .chapter-item:hover { background: #f8fafc; }
+
+        .chapter-info h4 {
+            margin: 0;
+            font-size: 15px;
+            color: var(--text-dark);
+        }
+
+        .chapter-info span {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .icon-status { font-size: 16px; }
+        .icon-unlocked { color: var(--primary); }
+
+        /* Reading View Progress */
+        .progress-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            z-index: 100;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+        }
+
+        /* Waves Animation */
+        .waves-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .wave-svg {
+            position: absolute;
+            bottom: 0;
+            width: 200%;
+            height: 100%;
+            animation: move-wave 10s linear infinite;
+            opacity: 0.4;
+        }
+
+        @keyframes move-wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+    </style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="logo">BOOKZONE</div>
+    <div style="color: var(--text-gray)"><i class="fa-solid fa-magnifying-glass"></i></div>
+</header>
+
+<div class="progress-container" id="progCont">
+    <div class="progress-bar" id="progBar"></div>
+</div>
+
+<div class="container" id="main-content">
+    <section class="book-hero">
+        <div class="cover-wrapper">
+            <img alt="Bìa sách" class="book-cover" src="https://scontent.fhan14-2.fna.fbcdn.net/v/t39.30808-6/687954802_122103360626640962_8059631684243780274_n.jpg?stp=dst-jpg_p526x296_tt6&_nc_cat=100&ccb=1-7&_nc_sid=7b2446&_nc_ohc=sJ0d001hq0sQ7kNvwF7YCNV&_nc_oc=AdpO7skYn1clscQQgPS01U6W5-jMQbKu-CmFnGX6saBtNGak5U7djTu6IJzEHi9NGlg&_nc_zt=23&_nc_ht=scontent.fhan14-2.fna&_nc_gid=od76jFnmkrPudrbI6HJcBQ&_nc_ss=7b2a8&oh=00_Af5PWKv8rglLWtu6NkJwPDh8SLB3OHFlE0qjpnw56wWllw&oe=6A01D48A"> 
+        </div>
+        <h2 class="book-title">Hôn Nhân Ngang Trái</h2>
+        <div class="book-meta">Tác giả: Thanh Hà • Ngôn Tình</div>
+        <div class="btn-group">
+            <a href="Chương 1.html" class="btn btn-primary">Đọc ngay</a>
+            <button class="btn btn-secondary"><i class="fa-solid fa-headphones"></i> Nghe sách</button>
+        </div>
+    </section>
+
+    <div class="summary-box">
+        <h3 style="margin-top:0; font-size:18px">Tóm tắt nội dung</h3>
+        <div class="summary-wrapper">
+            <div class="summary-content" id="summaryContent">
+                Cô là thiên kim tiểu thư nổi danh ở giới quý tộc Bắc Kinh, nổi tiếng là yêu tinh nhỏ lẳng lơ, ham chơi. 
+                Xuyên không đến mười năm sau, cô phát hiện mình đã gả cho Thái tử gia của giới quý tộc Bắc Kinh, thậm chí còn có một cô con gái. 
+                Thái tử gia từ nhỏ đã tu thiền, nổi danh thanh tâm quả dục. Cô tưởng rằng chính mình đã dụ dỗ anh ta phạm giới, hai người tu thành chính quả. 
+                Nhưng đến ngày thứ ba sau khi xuyên không, cô mới phát hiện, mình đã sai rồi. Người có thể khiến anh ta phá giới không phải là cô...
+                Một khi đã tỉnh ngộ, kệ xác cái lão cổ hủ nhạt nhẽo kia, cô muốn sống lại là chính mình - rực rỡ, sống động, kiêu hãnh. 
+                Nhưng anh lại thay đổi, vì cô mà phá giới phạm quy, giăng thiên la địa võng, chỉ để giữ cô lại bên mình.
+            </div>
+            <button class="btn-toggle" id="btnToggleSummary" onclick="toggleSummary()">
+                <span>Xem thêm</span> <i class="fa-solid fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+
+    <h3 style="font-size:18px; margin-bottom:15px">Danh sách chương (43)</h3>
+    <div class="chapter-list" id="chapterContainer">
+        <!-- Chapters will be injected by JavaScript -->
+    </div>
+</div>
+
+<div class="waves-container">
+    <svg class="wave-svg" preserveAspectRatio="none" viewBox="0 0 120 28" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 15C30 15 30 5 60 5C90 5 90 15 120 15V28H0V15Z" fill="#14b8a6" fill-opacity="0.2"/>
+    </svg>
+    <svg class="wave-svg" preserveAspectRatio="none" style="animation-delay: -2s; animation-duration: 7s;" viewBox="0 0 120 28" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 15C30 15 30 5 60 5C90 5 90 15 120 15V28H0V15Z" fill="#14b8a6" fill-opacity="0.1"/>
+    </svg>
+</div>
+
+<script>
+    const chapters = [
+        "Chương 1: Xuyên Không Mười Năm Sau",
+        "Chương 2: Kẻ Lạ Mặt Trong Chính Ngôi Nhà Mình",
+        "Chương 3: Nơi Không Có Chỗ Cho Dư Thanh Vũ",
+        "Chương 4: Tìm Lại Chính Mình",
+        "Chương 5: Chuỗi Hạt Phật Và Đóa Sen",
+        "Chương 6: Ngọn Lửa Dưới Lớp Băng",
+        "Chương 7: Bước Chân Về Nơi Thanh Tịnh",
+        "Chương 8: Con Dao Trong Tim",
+        "Chương 9: Ngoại Lệ Duy Nhất",
+        "Chương 10: Cuộc Chiến Trên Du Thuyền",
+        "Chương 11: Ngày Hè Rực Rỡ",
+        "Chương 12: Cuộc Gặp Tại Biệt Thự",
+        "Chương 13: Thách Thức Tạ Hoài Chu",
+        "Chương 14: Không Thể Chạy Thoát",
+        "Chương 15: Đêm Trước Chuyến Bay",
+        "Chương 16: Trách Nhiệm Hay Chấp Niệm",
+        "Chương 17: Người Gác Cửa Của Em",
+        "Chương 18: Trái Tim Giữa Hai Thế Giới",
+        "Chương 19: Vị Hôn Phu",
+        "Chương 20: Ánh Đèn Đêm",
+        "Chương 21: Giữa Men Say Và Sự Thật",
+        "Chương 22: Khoảng Cách Không Cần Nói Thành Lời",
+        "Chương 23: Trước Khi Tôi Biến Mất",
+        "Chương 24: Lần Đầu Là Chính Mình",
+        "Chương 25: Một Bước Rẽ",
+        "Chương 26: Hẹn Hò",
+        "Chương 27: Một Ngày Không Theo Kịch Bản",
+        "Chương 28: Bước Ra Khỏi Giới Hạn",
+        "Chương 29: Khoảnh Khắc Không Thể Buông",
+        "Chương 30: Tôi Không Tuyển Bạn Trai",
+        "Chương 31: Câu Hỏi Không Có Hồi Đáp",
+        "Chương 32: Một Buổi Tối Ở London",
+        "Chương 33: London, Anh Xuất Hiện",
+        "Chương 34: Cuộc Hẹn Không Tên",
+        "Chương 35: Anh Rất Nhớ Em",
+        "Chương 36: Không Có Ai Khác",
+        "Chương 37: Nụ Cười Không Thể Giấu",
+        "Chương 38: Cuộc Gọi Đang Kết Nối",
+        "Chương 39: Tuyên Bố Chủ Quyền",
+        "Chương 40: Chấp Niệm",
+        "Chương 41: Cuộc Gọi Không Đúng Lúc",
+        "Chương 42: Người Ở Bên Cạnh",
+        "Chương 43: Cuối Cùng Cũng Là Anh"
+    ];
+
+    function initChapters() {
+        const container = document.getElementById('chapterContainer');
+        chapters.forEach((title, index) => {
+            const item = document.createElement('a');
+            item.className = `chapter-item`;
+            
+            // Toàn bộ các chương đều mở khóa và dẫn link đến file tương ứng
+            item.href = `Chương ${index + 1}.html`;
+            
+            item.innerHTML = `
+                <div class="chapter-info">
+                    <h4>${title}</h4>
+                    <span>Cập nhật: 2024 • ${10 + index} phút đọc</span>
+                </div>
+                <div class="icon-status">
+                    <i class="fa-solid fa-circle-play icon-unlocked"></i>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    function toggleSummary() {
+        const content = document.getElementById('summaryContent');
+        const btn = document.getElementById('btnToggleSummary');
+        const isExpanded = content.classList.contains('expanded');
+        
+        if (isExpanded) {
+            content.classList.remove('expanded');
+            btn.innerHTML = '<span>Xem thêm</span> <i class="fa-solid fa-chevron-down"></i>';
+        } else {
+            content.classList.add('expanded');
+            btn.innerHTML = '<span>Thu gọn</span> <i class="fa-solid fa-chevron-up"></i>';
+        }
+    }
+
+    window.onload = initChapters;
+</script>
+
+</body>
+</html> 

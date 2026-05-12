@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>E-Reader Ultimate Pro | Chương 1</title>
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --primary-teal: #1abc9c;
+            --font-size: 19px;
+            --line-height: 1.8;
+            --font-family: 'Arial', sans-serif;
+            --toolbar-bg: #1e293b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-page);
+            font-family: var(--font-family);
+            color: var(--text-main);
+            transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
+            user-select: none;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* LOGO HOME BUTTON */
+        .home-logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            background: var(--bg-card);
+            padding: 8px 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(26, 188, 156, 0.2);
+        }
+
+        .home-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(26, 188, 156, 0.2);
+            background: var(--primary-teal);
+        }
+
+        .home-logo svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-teal);
+            transition: fill 0.3s;
+        }
+
+        .home-logo span {
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--primary-teal);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .home-logo:hover svg { fill: white; }
+        .home-logo:hover span { color: white; }
+
+        /* CHAPTER LIST BUTTON (RIGHT SIDE) */
+        .chapter-menu-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            padding: 8px 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(26, 188, 156, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chapter-menu-btn:hover {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .chapter-menu-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: var(--primary-teal);
+            stroke-width: 2;
+            transition: stroke 0.3s;
+        }
+
+        .chapter-menu-btn:hover svg { stroke: white; }
+
+        .chapter-menu-btn span {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--primary-teal);
+            transition: color 0.3s;
+        }
+
+        .chapter-menu-btn:hover span { color: white; }
+
+        /* DROPDOWN MENU */
+        #chapterDropdown {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            width: 220px;
+            background: var(--toolbar-bg);
+            border-radius: 15px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            z-index: 1002;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .chapter-link {
+            color: #cbd5e1;
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .chapter-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding-left: 20px;
+        }
+
+        .chapter-link.active {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .selectable {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto 150px;
+            background: var(--bg-card);
+            padding: 50px 60px;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        #textContent {
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+            text-align: justify;
+        }
+
+        h1 { text-align: center; color: var(--primary-teal); margin-bottom: 40px; margin-top: 20px; }
+
+        .hl-marked { 
+            background: rgba(250, 204, 21, 0.4); 
+            border-bottom: 2px solid #facc15;
+            cursor: pointer;
+        }
+
+        .smart-ui { position: fixed; transition: all 0.4s ease; z-index: 999; }
+        .ui-hidden { transform: translateY(120px); opacity: 0; pointer-events: none; }
+        .logo-hidden { transform: translateX(-120px); opacity: 0; }
+        .nav-hidden-right { transform: translateX(120px); opacity: 0; }
+
+        .circle-btn { 
+            bottom: 30px; width: 50px; height: 50px; border-radius: 50%; 
+            background: var(--primary-teal); color: white; border: none; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; 
+        }
+        #btnDown { left: 20px; } 
+        #btnUp { right: 20px; }
+
+        .toolbar {
+            bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--toolbar-bg); padding: 8px 16px;
+            border-radius: 40px; display: flex; gap: 6px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            align-items: center;
+        }
+
+        .tool-btn { 
+            background: none; border: none; color: #94a3b8; 
+            cursor: pointer; padding: 10px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tool-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+        .tool-btn:hover, .tool-btn.active { color: white; background: rgba(255,255,255,0.1); }
+
+        #musicMenu {
+            position: absolute; bottom: 70px; background: var(--toolbar-bg);
+            border-radius: 12px; padding: 8px; display: none; flex-direction: column;
+            width: 160px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .music-item { color: #cbd5e1; padding: 8px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .music-item:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        .modal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center; z-index: 1000; 
+        }
+        .modal-content { 
+            background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; color: #333;
+            max-height: 85vh; overflow-y: auto;
+        }
+        .setting-section { margin-bottom: 20px; }
+        .setting-label { display: block; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+        .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 13px; background: #fff; transition: 0.2s; }
+        .opt-btn.active { background: var(--primary-teal); color: white; border-color: var(--primary-teal); }
+
+        #hlPanel {
+            position: fixed; top: 20px; right: 20px; width: 280px; max-height: 350px;
+            background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none; flex-direction: column; z-index: 1100; border: 1px solid #eee;
+        }
+        .hl-header { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-weight: bold; }
+        .hl-list { padding: 10px; overflow-y: auto; flex: 1; font-size: 12px; }
+        .hl-item { padding: 8px; background: #f8fafc; margin-bottom: 6px; border-radius: 6px; cursor: pointer; border-left: 3px solid var(--primary-teal); }
+
+        #securityAlert {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            display: none; align-items: center; justify-content: center; z-index: 10000;
+        }
+        .alert-box { background: white; padding: 25px; border-radius: 12px; text-align: center; }
+
+        .navigation-container {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px dashed #cbd5e1;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 28px;
+            background: var(--primary-teal);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);
+            cursor: pointer;
+            border: none;
+        }
+
+        .nav-btn.prev {
+            background: var(--bg-page);
+            color: var(--primary-teal);
+            border: 2px solid var(--primary-teal);
+            box-shadow: none;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(26, 188, 156, 0.4);
+        }
+
+        .nav-btn.prev:hover {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .waves-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .wave-svg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            animation: move-wave 15s linear infinite;
+            opacity: 0.3;
+        }
+
+        .wave-svg-2 {
+            animation: move-wave 10s linear infinite reverse;
+            opacity: 0.15;
+            bottom: 5px;
+        }
+
+        @keyframes move-wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 30px 20px; margin: 0; border-radius: 0; }
+            .home-logo { top: 10px; left: 10px; padding: 6px 12px; }
+            .home-logo span { display: none; }
+            .chapter-menu-btn { top: 10px; right: 10px; padding: 6px 12px; }
+            .chapter-menu-btn span { display: none; }
+            #chapterDropdown { top: 55px; width: 180px; }
+            .nav-btn { padding: 12px 20px; font-size: 14px; width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body oncontextmenu="return showAlert(event)">
+
+<div id="securityAlert"><div class="alert-box"><h3>Bảo vệ nội dung</h3><p>Thao tác bị chặn!</p></div></div>
+
+<!-- LOGO HOME -->
+<a href="index.html" class="home-logo" id="homeLogo">
+    <svg viewBox="0 0 24 24">
+        <path d="M12 3L1 9l11 6l9-4.91V17h2V9L12 3z"/>
+        <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+    </svg>
+    <span>Bookzone</span>
+</a>
+
+<!-- NÚT DANH SÁCH CHƯƠNG (PHẢI MÀN HÌNH) -->
+<div class="chapter-menu-btn" id="chapterBtn">
+    <svg viewBox="0 0 24 24">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+    <span>Danh sách chương</span>
+</div>
+
+<!-- MENU THẢ XUỐNG -->
+<div id="chapterDropdown">
+    <a href="Chương 1.html" class="chapter-link active">Chương 1: Xuyên Không Mười Năm Sau</a>
+<a href="Chương 2.html" class="chapter-link">Chương 2: Kẻ Lạ Mặt Trong Chính Ngôi Nhà Mình</a>
+<a href="Chương 3.html" class="chapter-link">Chương 3: Nơi Không Có Chỗ Cho Dư Thanh Vũ</a>
+<a href="Chương 4.html" class="chapter-link">Chương 4: Tìm Lại Chính Mình</a>
+<a href="Chương 5.html" class="chapter-link">Chương 5: Chuỗi Hạt Phật Và Đóa Sen</a>
+<a href="Chương 6.html" class="chapter-link">Chương 6. Ngọn Lửa Dưới Lớp Băng</a>
+<a href="Chương 7.html" class="chapter-link">Chương 7: Bước Chân Về Nơi Thanh Tịnh</a>
+<a href="Chương 8.html" class="chapter-link">Chương 8: Con Dao Trong Tim</a>
+<a href="Chương 9.html" class="chapter-link">Chương 9: Ngoại Lệ Duy Nhất</a>
+<a href="Chương 10.html" class="chapter-link">Chương 10: Cuộc Chiến Trên Du Thuyền</a>
+<a href="Chương 11.html" class="chapter-link">Chương 11: Ngày Hè Rực Rỡ</a>
+<a href="Chương 12.html" class="chapter-link">Chương 12: Cuộc Gặp Tại Biệt Thự</a>
+<a href="Chương 13.html" class="chapter-link">Chương 13: Thách Thức Tạ Hoài Chu</a>
+<a href="Chương 14.html" class="chapter-link">Chương 14: Không Thể Chạy Thoát</a>
+<a href="Chương 15.html" class="chapter-link">Chương 15: Đêm Trước Chuyến Bay</a>
+<a href="Chương 16.html" class="chapter-link">Chương 16. Trách Nhiệm Hay Chấp Niệm</a>
+<a href="Chương 17.html" class="chapter-link">Chương 17. Người Gác Cửa Của Em</a>
+<a href="Chương 18.html" class="chapter-link">Chương 18. Trái Tim Giữa Hai Thế Giới</a>
+<a href="Chương 19.html" class="chapter-link">Chương 19. Vị Hôn Phu</a>
+<a href="Chương 20.html" class="chapter-link">Chương 20. Ánh Đèn Đêm</a>
+<a href="Chương 21.html" class="chapter-link">Chương 21: Giữa Men Say Và Sự Thật</a>
+<a href="Chương 22.html" class="chapter-link">Chương 22: Khoảng Cách Không Cần Nói Thành Lời</a>
+<a href="Chương 23.html" class="chapter-link">Chương 23: Trước Khi Tôi Biến Mất</a>
+<a href="Chương 24.html" class="chapter-link">Chương 24: Lần Đầu Là Chính Mình</a>
+<a href="Chương 25.html" class="chapter-link">Chương 25: Một Bước Rẽ</a>
+<a href="Chương 26.html" class="chapter-link">Chương 26: Hẹn Hò</a>
+<a href="Chương 27.html" class="chapter-link">Chương 27: Một Ngày Không Theo Kịch Bản</a>
+<a href="Chương 28.html" class="chapter-link">Chương 28: Bước Ra Khỏi Giới Hạn</a>
+<a href="Chương 29.html" class="chapter-link">Chương 29: Khoảnh Khắc Không Thể Buông</a>
+<a href="Chương 30.html" class="chapter-link">Chương 30: Tôi Không Tuyển Bạn Trai</a>
+<a href="Chương 31.html" class="chapter-link">Chương 31: Câu Hỏi Không Có Hồi Đáp</a>
+<a href="Chương 32.html" class="chapter-link">Chương 32: Một Buổi Tối Ở London</a>
+<a href="Chương 33.html" class="chapter-link">Chương 33: London, Anh Xuất Hiện</a>
+<a href="Chương 34.html" class="chapter-link">Chương 34: Cuộc Hẹn Không Tên</a>
+<a href="Chương 35.html" class="chapter-link">Chương 35: Anh Rất Nhớ Em</a>
+<a href="Chương 36.html" class="chapter-link">Chương 36: Không Có Ai Khác</a>
+<a href="Chương 37.html" class="chapter-link">Chương 37: Nụ Cười Không Thể Giấu</a>
+<a href="Chương 38.html" class="chapter-link">Chương 38: Cuộc Gọi Đang Kết Nối</a>
+<a href="Chương 39.html" class="chapter-link">Chương 39: Tuyên Bố Chủ Quyền</a>
+<a href="Chương 40.html" class="chapter-link">Chương 40: Chấp Niệm</a>
+<a href="Chương 41.html" class="chapter-link">Chương 41: Cuộc Gọi Không Đúng Lúc</a>
+<a href="Chương 42.html" class="chapter-link">Chương 42: Người Ở Bên Cạnh</a>
+<a href="Chương 43.html" class="chapter-link">Chương 43: Cuối Cùng Cũng Là Anh</a> 
+</div>
+
+<div class="waves-container">
+    <svg class="wave-svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,60 C150,110 350,10 500,60 C650,110 850,10 1000,60 C1150,110 1350,10 1500,60 L1500,120 L0,120 Z" fill="var(--primary-teal)"></path>
+    </svg>
+    <svg class="wave-svg wave-svg-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,60 C150,110 350,10 500,60 C650,110 850,10 1000,60 C1150,110 1350,10 1500,60 L1500,120 L0,120 Z" fill="var(--primary-teal)"></path>
+    </svg>
+</div>
+
+<button class="smart-ui circle-btn" id="btnDown"><svg viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5" stroke="currentColor" fill="none" stroke-width="2"/></svg></button>
+<button class="smart-ui circle-btn" id="btnUp"><svg viewBox="0 0 24 24"><path d="M17 11l-5-5-5 5M17 18l-5-5-5 5" stroke="currentColor" fill="none" stroke-width="2"/></svg></button>
+
+<div class="smart-ui toolbar" id="mainToolbar">
+    <button class="tool-btn" id="btnOpenSet" title="Cài đặt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <button class="tool-btn" id="btnFullscreen" title="Toàn màn hình"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+    <button class="tool-btn" id="btnHlAction" title="Highlight"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
+    <button class="tool-btn" id="btnTTS" title="Đọc văn bản"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2"/></svg></button>
+    <div style="position:relative; display:flex">
+        <button class="tool-btn" id="btnMusic" title="Nhạc nền"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
+        <div id="musicMenu">
+            <div class="music-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">🎹 Piano Melody</div>
+            <div class="music-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">🍃 Nature Soft</div>
+            <div class="music-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3">☕ Jazz Cafe</div>
+            <div class="music-item" style="border-top:1px solid #444; color:#ff4d4d; margin-top:5px" data-src="stop">⏹ Dừng nhạc</div>
+        </div>
+    </div>
+    <button class="tool-btn" id="btnAuto" title="Cuộn tự động"><svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg></button>
+    <button class="tool-btn" id="btnShowMarks" title="Danh sách highlight"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+</div>
+
+<audio id="audioPlayer" loop></audio>
+
+<!-- Modal Cài đặt -->
+<div class="modal" id="modalSettings">
+    <div class="modal-content">
+        <h2 style="margin-top:0; text-align:center; color:var(--primary-teal)">Cài Đặt Đọc</h2>
+        <div class="setting-section">
+            <span class="setting-label">Màu nền (Theme)</span>
+            <div class="options-grid">
+                <button class="opt-btn active" data-type="theme" data-bg="#f8fafc" data-card="#ffffff">Sáng</button>
+                <button class="opt-btn" data-type="theme" data-bg="#f1e7d0" data-card="#fdf6e3">Cổ điển</button>
+                <button class="opt-btn" data-type="theme" data-bg="#0f172a" data-card="#1e293b">Tối</button>
+            </div>
+        </div>
+        <div class="setting-section">
+            <span class="setting-label">Màu chữ</span>
+            <div class="options-grid">
+                <button class="opt-btn active" data-type="color" data-val="#1e293b">Mặc định</button>
+                <button class="opt-btn" data-type="color" data-val="#000000">Đen</button>
+                <button class="opt-btn" data-type="color" data-val="#5d4037">Nâu đậm</button>
+                <button class="opt-btn" data-type="color" data-val="#f1f5f9">Trắng</button>
+            </div>
+        </div>
+        <div class="setting-section">
+            <span class="setting-label">Cỡ chữ</span>
+            <div class="options-grid">
+                <button class="opt-btn" data-type="size" data-val="16px">Nhỏ</button>
+                <button class="opt-btn active" data-type="size" data-val="19px">Vừa</button>
+                <button class="opt-btn" data-type="size" data-val="24px">Lớn</button>
+            </div>
+        </div>
+        <div class="setting-section">
+            <span class="setting-label">Phông chữ</span>
+            <div class="options-grid">
+                <button class="opt-btn active" data-type="font" data-val="'Arial', sans-serif">Arial</button>
+                <button class="opt-btn" data-type="font" data-val="'Times New Roman', serif">Times</button>
+                <button class="opt-btn" data-type="font" data-val="'Courier New', monospace">Courier</button>
+            </div>
+        </div>
+        <div class="setting-section">
+            <span class="setting-label">Dãn dòng</span>
+            <div class="options-grid">
+                <button class="opt-btn" data-type="line" data-val="1.4">Hẹp</button>
+                <button class="opt-btn active" data-type="line" data-val="1.8">Vừa</button>
+                <button class="opt-btn" data-type="line" data-val="2.2">Rộng</button>
+            </div>
+        </div>
+        <button id="btnCloseSet" style="width:100%; padding:14px; background:var(--primary-teal); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer">Hoàn tất</button>
+    </div>
+</div>
+
+<div id="hlPanel">
+    <div class="hl-header"><span>Vùng Highlight</span><span id="closeHl" style="cursor:pointer">✕</span></div>
+    <div class="hl-list" id="hlItems"></div>
+</div>
+
+<!-- Nội dung truyện -->
+<div class="container selectable"> 
+    <h1>Chương 1: Xuyên Không Mười Năm Sau</h1>
+    <div id="textContent">
+        <p>Dư Thanh Vũ chăm chú nhìn bức ảnh cưới treo trên tường và cô bé bên cạnh suốt nửa tiếng đồng hồ, cuối cùng cũng buộc phải chấp nhận một sự thật - cô đã xuyên không tới mười năm sau.</p>
+        <p>Mười năm sau, bản thân cô không những đã gả cho người đàn ông mình thầm mến, <strong>Tạ Hoài Chu</strong>, mà còn có với anh một cô con gái.</p>
+        <p>Cô con gái tên <strong>Tạ Mễ</strong>, ngoại hình đôi chút giống cô, nhưng khí chất lại giống hệt Tạ Hoài Chu.</p>
+        <p>Dư Thanh Vũ hít sâu một hơi, chỉ vào người đàn ông mặc vest thẳng thớm trong bức ảnh cưới, hỏi:</p>
+        <p>- Bố con đâu?</p>
+        <p>Tạ Mễ thản nhiên đáp:</p>
+        <p>- Ở chùa Phổ Đức, tu hành.</p>
+        <p>Dư Thanh Vũ im lặng. Tạ Hoài Chu chính là người đàn ông mà mọi thiên kim nhà giàu Bắc Kinh đều mong được gả cho, không có ngoại lệ. Hai mươi tuổi anh tiếp quản tập đoàn gia tộc, khắc kỷ thủ lễ, cao ngạo lạnh lùng, không dính khói thuốc rượu, sở thích duy nhất là mỗi tháng lên chùa tu thiền.</p>
+        <p>Gió thổi qua khung cửa sổ, mang theo hương nhụy hoa dìu dìu. Dư Thanh Vũ cảm thấy đầu óc vẫn còn hơi choáng váng. Ký ức cuối cùng của cô là buổi tiệc tốt nghiệp đại học, sau một giấc ngủ dậy, cô đã trở thành phu nhân của nhà họ Tạ.</p> 
+        
+        <div class="navigation-container">
+            <a href="index.html" class="nav-btn prev">
+                <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <span>Mục lục</span>
+            </a>
+            <a href="Chương 2.html" class="nav-btn">
+                <span>Chương tiếp theo</span>
+                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showAlert(e) {
+        if(e) e.preventDefault();
+        const alert = document.getElementById('securityAlert');
+        alert.style.display = 'flex';
+        setTimeout(() => alert.style.display = 'none', 1500);
+        return false;
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if((e.ctrlKey || e.metaKey) && ['c','x','s','u'].includes(e.key.toLowerCase())) showAlert(e);
+    });
+
+    window.onload = function() {
+        const audio = document.getElementById('audioPlayer');
+        let scrolling = false;
+        let scrollInt;
+        let lastY = 0;
+
+        // Chapter List Logic
+        const chapterBtn = document.getElementById('chapterBtn');
+        const chapterDropdown = document.getElementById('chapterDropdown');
+
+        chapterBtn.onclick = (e) => {
+            e.stopPropagation();
+            chapterDropdown.style.display = (chapterDropdown.style.display === 'flex' ? 'none' : 'flex');
+        };
+
+        document.addEventListener('click', () => {
+            chapterDropdown.style.display = 'none';
+        });
+
+        // Highlight Logic
+        document.getElementById('btnHlAction').onclick = function() {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0 && sel.toString().trim().length > 0) {
+                const range = sel.getRangeAt(0);
+                const mark = document.createElement('span');
+                mark.className = 'hl-marked';
+                mark.ondblclick = function(e) {
+                    e.stopPropagation();
+                    const p = this.parentNode;
+                    while(this.firstChild) p.insertBefore(this.firstChild, this);
+                    p.removeChild(this);
+                    updateHlList();
+                };
+                try {
+                    range.surroundContents(mark);
+                    updateHlList();
+                    sel.removeAllRanges();
+                } catch(e) { console.warn("Lỗi chọn vùng"); }
+            }
+        };
+
+        function updateHlList() {
+            const list = document.getElementById('hlItems');
+            list.innerHTML = "";
+            document.querySelectorAll('.hl-marked').forEach((el, i) => {
+                const d = document.createElement('div');
+                d.className = 'hl-item';
+                d.innerText = `[#${i+1}] ` + el.innerText.substring(0, 30) + "...";
+                d.onclick = () => el.scrollIntoView({behavior:'smooth', block:'center'});
+                list.appendChild(d);
+            });
+        }
+
+        // Fullscreen
+        document.getElementById('btnFullscreen').onclick = function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        };
+
+        // Settings
+        document.getElementById('btnOpenSet').onclick = () => document.getElementById('modalSettings').style.display='flex';
+        document.getElementById('btnCloseSet').onclick = () => document.getElementById('modalSettings').style.display='none';
+        document.querySelectorAll('.opt-btn').forEach(btn => {
+            btn.onclick = function() {
+                const type = this.dataset.type;
+                this.parentElement.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const root = document.documentElement;
+                if(type === 'theme') {
+                    root.style.setProperty('--bg-page', this.dataset.bg);
+                    root.style.setProperty('--bg-card', this.dataset.card);
+                } else if(type === 'color') {
+                    root.style.setProperty('--text-main', this.dataset.val);
+                } else if(type === 'size') {
+                    root.style.setProperty('--font-size', this.dataset.val);
+                } else if(type === 'font') {
+                    root.style.setProperty('--font-family', this.dataset.val);
+                } else if(type === 'line') {
+                    root.style.setProperty('--line-height', this.dataset.val);
+                }
+            };
+        });
+
+        // Music
+        document.getElementById('btnMusic').onclick = (e) => {
+            e.stopPropagation();
+            const m = document.getElementById('musicMenu');
+            m.style.display = (m.style.display === 'flex' ? 'none' : 'flex');
+        };
+        document.querySelectorAll('.music-item').forEach(item => {
+            item.onclick = function() {
+                const src = this.dataset.src;
+                if(src === 'stop') audio.pause();
+                else { audio.src = src; audio.play(); }
+                document.getElementById('musicMenu').style.display = 'none';
+            };
+        });
+
+        // Auto Scroll
+        document.getElementById('btnAuto').onclick = function() {
+            const icon = document.getElementById('playIcon');
+            if(!scrolling) {
+                scrolling = true;
+                scrollInt = setInterval(() => window.scrollBy(0, 1), 40);
+                icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+            } else {
+                scrolling = false;
+                clearInterval(scrollInt);
+                icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+            }
+        };
+
+        // TTS
+        document.getElementById('btnTTS').onclick = function() {
+            if(speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+                this.classList.remove('active');
+            } else {
+                this.classList.add('active');
+                const utter = new SpeechSynthesisUtterance(document.getElementById('textContent').innerText);
+                utter.lang = 'vi-VN';
+                utter.onend = () => this.classList.remove('active');
+                speechSynthesis.speak(utter);
+            }
+        };
+
+        // Scroll Logic for Hiding/Showing UI
+        document.getElementById('btnDown').onclick = () => window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+        document.getElementById('btnUp').onclick = () => window.scrollTo({top: 0, behavior:'smooth'});
+        document.getElementById('btnShowMarks').onclick = () => {
+            const p = document.getElementById('hlPanel');
+            p.style.display = (p.style.display === 'flex' ? 'none' : 'flex');
+        };
+        document.getElementById('closeHl').onclick = () => document.getElementById('hlPanel').style.display='none';
+
+        window.onscroll = () => {
+            const uiElements = document.querySelectorAll('.smart-ui');
+            const logo = document.getElementById('homeLogo');
+            const chapterNav = document.getElementById('chapterBtn');
+            const now = window.pageYOffset;
+            if (now > lastY && now > 100) {
+                uiElements.forEach(u => u.classList.add('ui-hidden'));
+                logo.classList.add('logo-hidden');
+                chapterNav.classList.add('nav-hidden-right');
+                chapterDropdown.style.display = 'none';
+            } else {
+                uiElements.forEach(u => u.classList.remove('ui-hidden'));
+                logo.classList.remove('logo-hidden');
+                chapterNav.classList.remove('nav-hidden-right');
+            }
+            lastY = now;
+        };
+    };
+</script>
+</body>
+</html> 
